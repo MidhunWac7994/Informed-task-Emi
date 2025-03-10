@@ -1,6 +1,6 @@
 import { useField } from "informed";
 
-const   InputField = (props) => {
+const InputField = (props) => {
   const { fieldState, fieldApi, render, ref, userProps } = useField(props);
 
   const { value, error, showError } = fieldState;
@@ -30,7 +30,7 @@ const   InputField = (props) => {
   };
 
   return render(
-    <div style={{ marginBottom: "1rem"}}>
+    <div style={{ marginBottom: "1rem" }}>
       {label && <label htmlFor={id}>{label}</label>}
       <input
         {...rest}
@@ -48,6 +48,7 @@ const   InputField = (props) => {
           borderRadius: "4px",
           width: "100%",
         }}
+        type={type}  
       />
       {showError && (
         <small style={{ color: "red", fontSize: "0.8rem" }}>{error}</small>
@@ -55,5 +56,6 @@ const   InputField = (props) => {
     </div>
   );
 };
+
 
 export default InputField;

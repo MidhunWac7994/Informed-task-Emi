@@ -15,7 +15,7 @@ const RadioInput = ({ id, label, options, required }) => {
 
   return render(
     <div className="mb-3">
-      {label && <label className="form-label text-white">{label}</label>}
+      {label && <label className="form-label text-black">{label}</label>}
       <div className="d-flex flex-wrap gap-3">
         {options.map((option) => (
           <div key={option.value} className="form-check">

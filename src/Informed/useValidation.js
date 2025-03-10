@@ -37,7 +37,6 @@ const useValidations = (value, fieldId) => {
         break;
     }
   
-    // If all validations pass, return undefined (valid)
     return undefined;
   };
   

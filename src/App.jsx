@@ -1,6 +1,5 @@
+import InsForm from './InstallmentFormSimple/InsForm'
 
-import formData from './formData.json'
-import Form from './Informed/Form'
 
 
 function App() {
@@ -9,9 +8,9 @@ function App() {
   return (
     <>
      <div>
-      {/* <InstallmentForm/> */}
-      {/* <InformedForm formData={formData}/> */}
-      <Form formData={formData}/>
+{/* <InstallmentForm/> */}
+< InsForm/>
+      {/* <Form formData={formData}/> */}
  
      </div>
     </>

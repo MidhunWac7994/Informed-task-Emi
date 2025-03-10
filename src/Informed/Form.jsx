@@ -5,20 +5,19 @@ import SelectField from "./SelectField";
 import RadioInput from "./RadioInput";
 import CheckboxGroup from "./CheckBoxGroup";
 import FileInput from "./FileInput";
-import userData from '../formData.json'
+import userData from '../formData.json';
 import useValidations from "./useValidation";
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import CheckBox from "./CheckBox";
-
 
 const UseForm = () => {
   return (
     <div className="container my-5">
       <div className="row justify-content-center">
         <div className="col-12 col-md-8 col-lg-6">
-          <div className="card shadow-sm border-dark bg-dark text-white">
+          <div className="card shadow-sm border-dark">
             <div className="card-body p-4">
-              <h2 className="card-title text-center mb-4 text-white">
+              <h2 className="card-title text-center mb-4 text-dark">
                 User Registration
               </h2>
               <Form>
@@ -79,7 +78,7 @@ const UseForm = () => {
                           case "text":
                           case "email":
                           case "tel":
-                          case "date":
+                          case "date": // Handle the date field
                             return (
                               <InputField
                                 key={id}
@@ -145,7 +144,7 @@ const UseForm = () => {
                         <button
                           type="submit"
                           onClick={handleSubmitWithReset}
-                          className="btn btn-outline-light btn-lg w-100"
+                          className="btn btn-outline-dark btn-lg w-100"
                         >
                           Submit
                         </button>
