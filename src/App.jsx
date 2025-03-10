@@ -1,4 +1,4 @@
-import InformedForm from "./InformedForm/InformedForm"
+
 import formData from './formData.json'
 import Form from './Informed/Form'
 
