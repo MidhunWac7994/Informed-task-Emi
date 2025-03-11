@@ -1,20 +1,30 @@
-import { Container, Row, Col, Form, Table, Button, Card } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Table,
+  Button,
+  Card,
+} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import useInstallmentAdvancedLogic from "./useInstallmentAdvancedLogic";
 import useInstallmentLogic from "./useInstallmentLogic";
 
 const InsForm = () => {
   const {
     recommendedAmount,
-    setRecommendedAmount,
+    handleRecommendedAmountChange,
     installmentCount,
-    setInstallmentCount,
+    handleInstallmentCountChange,
     installments,
+    setInstallments,
     toggleInstallmentSelection,
     updateDueDate,
-    mergeInstallments,
-    splitInstallment,
-    handleUndo,
   } = useInstallmentLogic();
+
+  const { mergeInstallments, splitInstallment, handleUndo } =
+    useInstallmentAdvancedLogic(installments, setInstallments);
 
   return (
     <Container className="mt-2" style={{ maxWidth: "600px" }}>
@@ -29,7 +39,7 @@ const InsForm = () => {
                   value={recommendedAmount}
                   onChange={(e) => {
                     let value = e.target.value.replace(/\D/g, "");
-                    setRecommendedAmount(value ? Number(value) : "");
+                    handleRecommendedAmountChange(value ? Number(value) : "");
                   }}
                   style={{ fontSize: "14px", padding: "4px" }}
                   onWheel={(e) => e.target.blur()}
@@ -44,7 +54,9 @@ const InsForm = () => {
                 <Form.Label>Installment Count</Form.Label>
                 <Form.Select
                   value={installmentCount}
-                  onChange={(e) => setInstallmentCount(Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInstallmentCountChange(Number(e.target.value))
+                  }
                   style={{ fontSize: "14px", padding: "4px" }}
                 >
                   {[12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((count) => (
@@ -93,7 +105,9 @@ const InsForm = () => {
                         <Form.Check
                           type="checkbox"
                           checked={installment.checked}
-                          onChange={() => toggleInstallmentSelection(installment.insNumber)}
+                          onChange={() =>
+                            toggleInstallmentSelection(installment.insNumber)
+                          }
                         />
                       )}
                     </td>
@@ -103,8 +117,15 @@ const InsForm = () => {
                       <Form.Control
                         type="date"
                         value={installment.dueDate}
-                        onChange={(e) => updateDueDate(installment.insNumber, e.target.value)}
-                        min={installment.insNumber > "1" ? installments[Number(installment.insNumber) - 2]?.dueDate : ""}
+                        onChange={(e) =>
+                          updateDueDate(installment.insNumber, e.target.value)
+                        }
+                        min={
+                          installment.insNumber > "1"
+                            ? installments[Number(installment.insNumber) - 2]
+                                ?.dueDate
+                            : ""
+                        }
                         style={{ fontSize: "12px", padding: "4px" }}
                       />
                     </td>
@@ -120,7 +141,9 @@ const InsForm = () => {
                 variant="secondary"
                 className="me-2 btn-sm"
                 onClick={mergeInstallments}
-                disabled={installments.filter((inst) => inst.checked).length < 2}
+                disabled={
+                  installments.filter((inst) => inst.checked).length < 2
+                }
               >
                 Merge
               </Button>
@@ -128,14 +151,16 @@ const InsForm = () => {
                 variant="secondary"
                 className="btn-sm"
                 onClick={splitInstallment}
-                disabled={installments.filter((inst) => inst.checked).length !== 1}
+                disabled={
+                  installments.filter((inst) => inst.checked).length !== 1
+                }
               >
                 Split
               </Button>
             </Col>
           </Row>
         </Card.Body>
-      </Card>
+      </Card>   
     </Container>
   );
 };
