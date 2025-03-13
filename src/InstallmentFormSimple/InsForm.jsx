@@ -68,7 +68,7 @@ const InsForm = () => {
               </Form.Group>
             </Col>
           </Row>
-
+                              
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
@@ -160,7 +160,7 @@ const InsForm = () => {
             </Col>
           </Row>
         </Card.Body>
-      </Card>   
+      </Card>
     </Container>
   );
 };

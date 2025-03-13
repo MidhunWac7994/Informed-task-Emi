@@ -1,5 +1,5 @@
-import InsForm from './InstallmentFormSimple/InsForm'
-
+import DragnDrop from './DND/DragnDrop'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {
@@ -9,8 +9,9 @@ function App() {
     <>
      <div>
 {/* <InstallmentForm/> */}
-< InsForm/>
+{/* < InsForm/> */}
       {/* <Form formData={formData}/> */}
+      <DragnDrop/>
  
      </div>
     </>
