@@ -260,7 +260,6 @@ const KanbanBoard = () => {
         </DragDropContext>
       </Container>
 
-      {/* Modal for Create Option */}
       <Modal 
         show={showModal} 
         onHide={handleClose}
