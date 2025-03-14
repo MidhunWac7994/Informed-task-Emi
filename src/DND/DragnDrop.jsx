@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Container, Nav, NavDropdown, Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
-import { BsKanban, BsPlus, BsThreeDots, BsTrash } from 'react-icons/bs';
+import { BsKanban, BsPlus, BsTrash } from 'react-icons/bs';
 import Select from 'react-select';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
@@ -10,6 +10,8 @@ const KanbanBoard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState('');
   const [tasks, setTasks] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem('tasks'));
@@ -37,11 +39,10 @@ const KanbanBoard = () => {
     { value: 'Done', label: 'Done' },
   ];
 
-
   const handleCreateTask = () => {
     if (taskName && selectedCategory) {
       const newTask = {
-        id: `${Date.now()}`, 
+        id: `${Date.now()}`,
         title: taskName,
         category: selectedCategory.value,
         description: description,
@@ -76,7 +77,19 @@ const KanbanBoard = () => {
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    setTaskToDelete(taskId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    setShowDeleteModal(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
   };
 
   return (
@@ -110,24 +123,24 @@ const KanbanBoard = () => {
       <Container fluid className="mt-4 px-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Row>
-            <Col md={4}>
+            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
               <Droppable droppableId="To Do">
                 {(provided) => (
                   <div
-                    className="kanban-column"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{ backgroundColor: '#d1ecf1' }} 
+                    className="border rounded-3 mb-3 p-2 flex-grow-1"
+                    style={{ backgroundColor: '#d1ecf1' }}
                   >
                     <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
                       To Do <span className="badge bg-secondary">{getTasksByCategory('To Do').length}</span>
                     </h5>
-                    <div className="task-list p-2">
+                    <div className="task-list">
                       {getTasksByCategory('To Do').map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided) => (
                             <Card
-                              className="mb-2 task-card shadow-sm"
+                              className="mb-2 shadow-sm"
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
@@ -139,7 +152,6 @@ const KanbanBoard = () => {
                                     variant="outline-danger" 
                                     size="sm"
                                     onClick={() => handleDeleteTask(task.id)}
-                                    style={{ backgroundColor: 'transparent', border: 'none' }}
                                   >
                                     <BsTrash />
                                   </Button>
@@ -159,24 +171,24 @@ const KanbanBoard = () => {
               </Droppable>
             </Col>
 
-            <Col md={4}>
+            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
               <Droppable droppableId="In Progress">
                 {(provided) => (
                   <div
-                    className="kanban-column"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{ backgroundColor: '#fff3cd' }} 
+                    className="border rounded-3 mb-3 p-2 flex-grow-1"
+                    style={{ backgroundColor: '#fff3cd' }}
                   >
                     <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
                       In Progress <span className="badge bg-primary">{getTasksByCategory('In Progress').length}</span>
                     </h5>
-                    <div className="task-list p-2">
+                    <div className="task-list">
                       {getTasksByCategory('In Progress').map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided) => (
                             <Card
-                              className="mb-2 task-card shadow-sm"
+                              className="mb-2 shadow-sm"
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
@@ -188,7 +200,6 @@ const KanbanBoard = () => {
                                     variant="outline-danger" 
                                     size="sm"
                                     onClick={() => handleDeleteTask(task.id)}
-                                    style={{ backgroundColor: 'transparent', border: 'none' }}
                                   >
                                     <BsTrash />
                                   </Button>
@@ -208,24 +219,24 @@ const KanbanBoard = () => {
               </Droppable>
             </Col>
 
-            <Col md={4}>
+            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
               <Droppable droppableId="Done">
                 {(provided) => (
                   <div
-                    className="kanban-column"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{ backgroundColor: '#d4edda' }} 
+                    className="border rounded-3 mb-3 p-2 flex-grow-1"
+                    style={{ backgroundColor: '#d4edda' }}
                   >
                     <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
                       Done <span className="badge bg-success">{getTasksByCategory('Done').length}</span>
                     </h5>
-                    <div className="task-list p-2">
+                    <div className="task-list">
                       {getTasksByCategory('Done').map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided) => (
                             <Card
-                              className="mb-2 task-card shadow-sm"
+                              className="mb-2 shadow-sm"
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
@@ -237,7 +248,6 @@ const KanbanBoard = () => {
                                     variant="outline-danger" 
                                     size="sm"
                                     onClick={() => handleDeleteTask(task.id)}
-                                    style={{ backgroundColor: 'transparent', border: 'none' }}
                                   >
                                     <BsTrash />
                                   </Button>
@@ -260,12 +270,11 @@ const KanbanBoard = () => {
         </DragDropContext>
       </Container>
 
+      {/* Create Task Modal */}
       <Modal 
         show={showModal} 
         onHide={handleClose}
         centered
-        dialogClassName="modal-dialog-centered"
-        contentClassName="shadow"
       >
         <Modal.Header closeButton>
           <Modal.Title>Create Task</Modal.Title>
@@ -310,28 +319,23 @@ const KanbanBoard = () => {
         </Modal.Footer>
       </Modal>
 
-      <style>{
-        `.kanban-column {
-          min-height: 600px;
-          border-radius: 3px;
-          margin-bottom: 1rem;
-        }
-        
-        .task-list {
-          min-height: 200px;
-        }
-        
-        .task-card {
-          background-color: white;
-          border-radius: 3px;
-          border-left: 3px solid #4b9fda;
-          cursor: pointer;
-        }
-        
-        .task-card:hover {
-          background-color: #f9f9f9;
-        }`
-      }</style>
+      {/* Delete Task Confirmation Modal */}
+      <Modal 
+        show={showDeleteModal} 
+        onHide={cancelDelete}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this task?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cancelDelete}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
