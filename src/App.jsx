@@ -1,5 +1,6 @@
 import DragnDrop from './DND/DragnDrop'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import  BigCalendar from './React-big-calendar/BigCalendar'
 
 
 function App() {
@@ -12,7 +13,8 @@ function App() {
 {/* < InsForm/> */}
       {/* <Form formData={formData}/> */}
       <DragnDrop/>
- 
+      <BigCalendar/>
+    
      </div>
     </>
   )

@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar, Container, Nav, NavDropdown, Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
 import { BsKanban, BsPlus, BsTrash } from 'react-icons/bs';
 import Select from 'react-select';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import useTaskForm from './custom/useTaskForm';
 
 const KanbanBoard = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [taskName, setTaskName] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [description, setDescription] = useState('');
+  const {
+    taskName,
+    selectedCategory,
+    description,
+    showModal,
+    showDeleteModal,
+    taskToDelete,
+    handleShow,
+    handleClose,
+    handleTaskNameChange,
+    handleCategoryChange,
+    handleDescriptionChange,
+    handleDeleteTask,
+    cancelDelete,
+    confirmDelete 
+  } = useTaskForm();
+
   const [tasks, setTasks] = useState([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem('tasks'));
@@ -26,19 +38,6 @@ const KanbanBoard = () => {
     }
   }, [tasks]);
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
-
-  const handleTaskNameChange = (e) => setTaskName(e.target.value);
-  const handleCategoryChange = (selectedOption) => setSelectedCategory(selectedOption);
-  const handleDescriptionChange = (e) => setDescription(e.target.value);
-
-  const categoryOptions = [
-    { value: 'To Do', label: 'To Do' },
-    { value: 'In Progress', label: 'In Progress' },
-    { value: 'Done', label: 'Done' },
-  ];
-
   const handleCreateTask = () => {
     if (taskName && selectedCategory) {
       const newTask = {
@@ -48,9 +47,6 @@ const KanbanBoard = () => {
         description: description,
       };
       setTasks((prevTasks) => [...prevTasks, newTask]);
-      setTaskName('');
-      setSelectedCategory(null);
-      setDescription('');
       handleClose();
     }
   };
@@ -76,20 +72,18 @@ const KanbanBoard = () => {
     setTasks(updatedTasks);
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTaskToDelete(taskId);
-    setShowDeleteModal(true);
-  };
+  const categoryOptions = [
+    { value: 'To Do', label: 'To Do' },
+    { value: 'In Progress', label: 'In Progress' },
+    { value: 'Done', label: 'Done' },
+  ];
 
-  const confirmDelete = () => {
+  const confirmDeleteTask = () => {
+
     const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-    setShowDeleteModal(false);
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
+    cancelDelete();
   };
 
   return (
@@ -123,154 +117,59 @@ const KanbanBoard = () => {
       <Container fluid className="mt-4 px-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Row>
-            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
-              <Droppable droppableId="To Do">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="border rounded-3 mb-3 p-2 flex-grow-1"
-                    style={{ backgroundColor: '#d1ecf1' }}
-                  >
-                    <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
-                      To Do <span className="badge bg-secondary">{getTasksByCategory('To Do').length}</span>
-                    </h5>
-                    <div className="task-list">
-                      {getTasksByCategory('To Do').map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided) => (
-                            <Card
-                              className="mb-2 shadow-sm"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <Card.Body className="p-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <Card.Title className="h6">{task.title}</Card.Title>
-                                  <Button 
-                                    variant="outline-danger" 
-                                    size="sm"
-                                    onClick={() => handleDeleteTask(task.id)}
-                                  >
-                                    <BsTrash />
-                                  </Button>
-                                </div>
-                                <div className="description mt-2">
-                                  <small className="text-muted">{task.description}</small>
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          )}
-                        </Draggable>
-                      ))}
+            {['To Do', 'In Progress', 'Done'].map((category) => (
+              <Col key={category} md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
+                <Droppable droppableId={category}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`border rounded-3 mb-3 p-2 flex-grow-1 ${category === 'To Do' ? 'bg-info' : category === 'In Progress' ? 'bg-warning' : 'bg-success'}`}
+                    >
+                      <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
+                        {category} <span className="badge bg-secondary">{getTasksByCategory(category).length}</span>
+                      </h5>
+                      <div className="task-list">
+                        {getTasksByCategory(category).map((task, index) => (
+                          <Draggable key={task.id} draggableId={task.id} index={index}>
+                            {(provided) => (
+                              <Card
+                                className="mb-2 shadow-sm"
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <Card.Body className="p-3">
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <Card.Title className="h6">{task.title}</Card.Title>
+                                    <Button 
+                                      variant="outline-danger" 
+                                      size="sm"
+                                      onClick={() => handleDeleteTask(task.id)} // Pass task id for deletion
+                                    >
+                                      <BsTrash />
+                                    </Button>
+                                  </div>
+                                  <div className="description mt-2">
+                                    <small className="text-muted">{task.description}</small>
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            )}
+                          </Draggable>
+                        ))}
+                      </div>
+                      {provided.placeholder}
                     </div>
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </Col>
-
-            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
-              <Droppable droppableId="In Progress">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="border rounded-3 mb-3 p-2 flex-grow-1"
-                    style={{ backgroundColor: '#fff3cd' }}
-                  >
-                    <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
-                      In Progress <span className="badge bg-primary">{getTasksByCategory('In Progress').length}</span>
-                    </h5>
-                    <div className="task-list">
-                      {getTasksByCategory('In Progress').map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided) => (
-                            <Card
-                              className="mb-2 shadow-sm"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <Card.Body className="p-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <Card.Title className="h6">{task.title}</Card.Title>
-                                  <Button 
-                                    variant="outline-danger" 
-                                    size="sm"
-                                    onClick={() => handleDeleteTask(task.id)}
-                                  >
-                                    <BsTrash />
-                                  </Button>
-                                </div>
-                                <div className="description mt-2">
-                                  <small className="text-muted">{task.description}</small>
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          )}
-                        </Draggable>
-                      ))}
-                    </div>
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </Col>
-
-            <Col md={4} className="d-flex flex-column" style={{ minHeight: '600px' }}>
-              <Droppable droppableId="Done">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="border rounded-3 mb-3 p-2 flex-grow-1"
-                    style={{ backgroundColor: '#d4edda' }}
-                  >
-                    <h5 className="py-2 px-3 bg-light border d-flex justify-content-between align-items-center">
-                      Done <span className="badge bg-success">{getTasksByCategory('Done').length}</span>
-                    </h5>
-                    <div className="task-list">
-                      {getTasksByCategory('Done').map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided) => (
-                            <Card
-                              className="mb-2 shadow-sm"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <Card.Body className="p-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <Card.Title className="h6">{task.title}</Card.Title>
-                                  <Button 
-                                    variant="outline-danger" 
-                                    size="sm"
-                                    onClick={() => handleDeleteTask(task.id)}
-                                  >
-                                    <BsTrash />
-                                  </Button>
-                                </div>
-                                <div className="description mt-2">
-                                  <small className="text-muted">{task.description}</small>
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          )}
-                        </Draggable>
-                      ))}
-                    </div>
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </Col>
+                  )}
+                </Droppable>
+              </Col>
+            ))}
           </Row>
         </DragDropContext>
       </Container>
 
-      {/* Create Task Modal */}
+
       <Modal 
         show={showModal} 
         onHide={handleClose}
@@ -319,7 +218,6 @@ const KanbanBoard = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Delete Task Confirmation Modal */}
       <Modal 
         show={showDeleteModal} 
         onHide={cancelDelete}
@@ -333,7 +231,7 @@ const KanbanBoard = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={cancelDelete}>Cancel</Button>
-          <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+          <Button variant="danger" onClick={confirmDeleteTask}>Delete</Button>
         </Modal.Footer>
       </Modal>
     </>
